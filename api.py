@@ -12,15 +12,15 @@ def init_sqlite_db():
     conn = sqlite3.connect('database.db')
     print("Opened database successfully")
 
-    conn.execute('CREATE TABLE IF NOT EXISTS person (id integer primary key autoincrement, name TEXT, surname TEXT, academy TEXT, skills TEXT, gender TEXT)')
-    print("Table created successfully")
+ 
 
-
-    conn.execute('CREATE TABLE IF NOT EXISTS books (id integer primary key autoincrement, Title TEXT, Author TEXT, Genres TEXT, Originally_published TEXT, Price TEXT)')
+    conn.execute('CREATE TABLE IF NOT EXISTS Books (id integer primary key autoincrement, Title TEXT, Author TEXT, Genres TEXT, Originally_published TEXT, Price integer)')
+    
     print("Table created successfully")
 
     conn.execute('CREATE TABLE IF NOT EXISTS customers (id integer primary key autoincrement, name TEXT, email TEXT, password TEXT, cart TEXT)')
     print("Table created successfully")
+
 
    
     conn.close()
@@ -44,10 +44,10 @@ def add_products():
             Author = request.form['author']
             Genres = request.form['genres']
             Originally_published = request.form['op']
-            Price = request.form = request.form['price']
+            Price = request.form['price']
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO books (Title, Author, Genres, Originally_published, Price) VALUES (?, ?, ?, ?, ?)",
+                cur.execute("INSERT INTO Books (Title, Author, Genres, Originally_published, Price) VALUES (?, ?, ?, ?, ?)",
                  (Title, Author, Genres, Originally_published,Price))
                 con.commit()
                 msg = "Record successfully added"
@@ -68,7 +68,7 @@ def show_items():
         with sqlite3.connect('database.db') as con:
             con.row_factory = dict_factory
             cur = con.cursor()
-            cur.execute("SELECT * FROM books")
+            cur.execute("SELECT * FROM Books")
             records = cur.fetchall()
     except Exception as e:
         con.rollback()
@@ -77,6 +77,24 @@ def show_items():
         con.close()
         return jsonify(records)
 
+
+@app.route('/delete-records/<int:books_id>/', methods=["GET"])
+def delete_users(books_id):
+    msg = None
+    try:
+        with sqlite3.connect('database.db') as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM Books WHERE id=" + str(books_id))
+            con.commit()
+            msg = "A record was deleted successfully from the database."
+    except Exception as e:
+        con.rollback()
+        msg = "Error occurred when deleting a student in the database: " + str(e)
+    finally:
+        con.close()
+        return jsonify(msg)        
+
+   
 
 
 if __name__ == '__main__':
