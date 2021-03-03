@@ -14,11 +14,13 @@ def init_sqlite_db():
 
  
 
-    conn.execute('CREATE TABLE IF NOT EXISTS Books (id integer primary key autoincrement, Title TEXT, Author TEXT, Genres TEXT, Originally_published TEXT, Price integer)')
+  
+
     
+    conn.execute('CREATE TABLE IF NOT EXISTS customers (id integer primary key autoincrement, name TEXT, email TEXT, password TEXT, cart TEXT)')
     print("Table created successfully")
 
-    conn.execute('CREATE TABLE IF NOT EXISTS customers (id integer primary key autoincrement, name TEXT, email TEXT, password TEXT, cart TEXT)')
+    conn.execute('CREATE TABLE IF NOT EXISTS Items (id integer primary key autoincrement, Title TEXT, Author TEXT, Genres TEXT, Originally_published TEXT, Price integer ,Images TEXT)')
     print("Table created successfully")
 
 
@@ -45,10 +47,11 @@ def add_products():
             Genres = request.form['genres']
             Originally_published = request.form['op']
             Price = request.form['price']
+            Images = request.form['images']
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO Books (Title, Author, Genres, Originally_published, Price) VALUES (?, ?, ?, ?, ?)",
-                 (Title, Author, Genres, Originally_published,Price))
+                cur.execute("INSERT INTO Items (Title, Author, Genres, Originally_published, Price,Images) VALUES (?, ?, ?, ?, ?, ?)",
+                 (Title, Author, Genres, Originally_published,Price, Images))
                 con.commit()
                 msg = "Record successfully added"
           
@@ -68,7 +71,7 @@ def show_items():
         with sqlite3.connect('database.db') as con:
             con.row_factory = dict_factory
             cur = con.cursor()
-            cur.execute("SELECT * FROM Books")
+            cur.execute("SELECT * FROM Items")
             records = cur.fetchall()
     except Exception as e:
         con.rollback()
@@ -98,4 +101,4 @@ def delete_users(books_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)    
+    app.run(debug=True) 
