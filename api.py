@@ -42,12 +42,13 @@ def add_products():
     if request.method == 'POST':
 
         try:
-            Title = request.form['title']
-            Author = request.form['author']
-            Genres = request.form['genres']
-            Originally_published = request.form['op']
-            Price = request.form['price']
-            Images = request.form['images']
+            post_data = request.get_json()
+            Title = post_data['title']
+            Author = post_data['author']
+            Genres = post_data['genres']
+            Originally_published = post_data['op']
+            Price = post_data['price']
+            Images = post_data['images']
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
                 cur.execute("INSERT INTO Items (Title, Author, Genres, Originally_published, Price,Images) VALUES (?, ?, ?, ?, ?, ?)",
@@ -77,8 +78,8 @@ def show_items():
         con.rollback()
         print("There was an error fetching results from the database." + str(e))
     finally:
-        con.close()
         return jsonify(records)
+        con.close()
 
 
 @app.route('/delete-records/<int:books_id>/', methods=["GET"])
