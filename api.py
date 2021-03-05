@@ -2,11 +2,7 @@ import sqlite3
 from flask import Flask,render_template,request,jsonify
 from flask_cors import CORS
 
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d    
+
 
 def init_sqlite_db():
     conn = sqlite3.connect('database.db')
@@ -23,7 +19,7 @@ def init_sqlite_db():
     conn.execute('CREATE TABLE IF NOT EXISTS Items (id integer primary key autoincrement, Title TEXT, Author TEXT, Genres TEXT, Originally_published TEXT, Price integer ,Images TEXT)')
     print("Table created successfully")
 
-
+    
    
     conn.close()
 
@@ -32,6 +28,12 @@ init_sqlite_db()
 
 app = Flask(__name__)
 CORS(app)
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d    
 
 @app.route('/', methods=['GET'])
 def home_page():
@@ -46,22 +48,22 @@ def add_products():
             Title = post_data['title']
             Author = post_data['author']
             Genres = post_data['genres']
-            Originally_published = post_data['op']
+            Originally_published = post_data['originally_published']
             Price = post_data['price']
             Images = post_data['images']
+
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
+                con.row_factory = dict_factory
                 cur.execute("INSERT INTO Items (Title, Author, Genres, Originally_published, Price,Images) VALUES (?, ?, ?, ?, ?, ?)",
                  (Title, Author, Genres, Originally_published,Price, Images))
                 con.commit()
                 msg = "Record successfully added"
           
         except Exception as e:
-            con.rollback()
             msg = "Error occurred in insert operation: " + str(e)
         finally:
-            con.close()
-            return jsonify(msg)   
+            return {'msg' : msg}   
 
      
   
@@ -88,7 +90,7 @@ def delete_users(books_id):
     try:
         with sqlite3.connect('database.db') as con:
             cur = con.cursor()
-            cur.execute("DELETE FROM Books WHERE id=" + str(books_id))
+            cur.execute("DELETE FROM Items WHERE id=" + str(books_id))
             con.commit()
             msg = "A record was deleted successfully from the database."
     except Exception as e:
