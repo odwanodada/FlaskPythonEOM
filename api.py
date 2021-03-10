@@ -39,6 +39,34 @@ def dict_factory(cursor, row):
 def home_page():
     return render_template('home.html')
 
+
+@app.route('/customer-reg/', methods=['POST'])
+def reg_person():
+    msg = None
+    if request.method == 'POST':
+        try:
+            post_data = request.get_json()
+            name = post_data['Name']
+            email = post_data['Email']
+            password = post_data['Password']
+       
+
+            with sqlite3.connect('database.db') as con:
+                cur = con.cursor()
+                con.row_factory = dict_factory
+                cur.execute("INSERT INTO customers(name, email, password) VALUES (?, ?, ?)", (name, email, password))
+                con.commit()
+                msg = "Registered"
+
+        except Exception as e:
+            rollback()
+            msg = "Error occurred in Registration"   
+        finally:
+            con.close
+            return jsonify(msg)   
+                 
+
+
 @app.route('/add-books/', methods=['POST'])  
 def add_products():
     if request.method == 'POST':
@@ -84,7 +112,26 @@ def show_items():
         con.close()
 
 
-@app.route('/delete-records/<int:books_id>/', methods=["GET"])
+@app.route('/show-customers/', methods=["GET"])
+def show_customers():
+    data = []
+    try:
+        with sqlite3.connect('database.db') as con:
+            con.row_factory = dict_factory
+            cur = con.cursor()
+            cur.execute("SELECT * FROM customers")
+            data = cur.fetchall()
+    except Exception as e:
+        con.rollback()
+        print("There was an error fetching results from the database." + str(e))
+    finally:
+        con.close()
+        return jsonify(data)
+
+
+
+
+@app.route('/delete-records/<int:books_id>/', methods=['GET'])
 def delete_users(books_id):
     msg = None
     try:
