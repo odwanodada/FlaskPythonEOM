@@ -3,28 +3,40 @@ from flask import Flask,render_template,request,jsonify
 from flask_cors import CORS
 
 
-
 def init_sqlite_db():
     conn = sqlite3.connect('database.db')
     print("Opened database successfully")
 
- 
-
-  
-
-    
     conn.execute('CREATE TABLE IF NOT EXISTS customers (id integer primary key autoincrement, name TEXT, email TEXT, password TEXT, cart TEXT)')
     print("Table created successfully")
 
     conn.execute('CREATE TABLE IF NOT EXISTS Items (id integer primary key autoincrement, Title TEXT, Author TEXT, Genres TEXT, Originally_published TEXT, Price integer ,Images TEXT)')
     print("Table created successfully")
 
-    
-   
     conn.close()
 
 init_sqlite_db()
 
+
+def delete_empy():
+    conn = sqlite3.connect('database.db')
+    conn.execute("DELETE FROM customers WHERE id=4")
+    conn.commit()
+
+    conn.execute("DELETE FROM customers WHERE id=5")
+    conn.commit()
+
+    conn.execute("DELETE FROM customers WHERE id=6")
+    conn.commit()
+
+    conn.execute("DELETE FROM customers WHERE id=7")
+    conn.commit()
+
+    conn.execute("DELETE FROM customers WHERE id=8")
+    conn.commit()
+
+
+delete_empy()
 
 app = Flask(__name__)
 CORS(app)
@@ -59,10 +71,10 @@ def reg_person():
                 msg = "Registered"
 
         except Exception as e:
-            rollback()
+            con.rollback()
             msg = "Error occurred in Registration"   
         finally:
-            con.close
+            con.close()
             return jsonify(msg)   
                  
 
