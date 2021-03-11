@@ -19,6 +19,8 @@ init_sqlite_db()
 
 
 def delete_empy():
+    # Run this function to delete empty values.
+    # Check if the id's are correct
     conn = sqlite3.connect('database.db')
     conn.execute("DELETE FROM customers WHERE id=4")
     conn.commit()
@@ -35,8 +37,6 @@ def delete_empy():
     conn.execute("DELETE FROM customers WHERE id=8")
     conn.commit()
 
-
-delete_empy()
 
 app = Flask(__name__)
 CORS(app)
