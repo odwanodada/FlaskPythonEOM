@@ -157,7 +157,25 @@ def delete_users(books_id):
         msg = "Error occurred when deleting a student in the database: " + str(e)
     finally:
         con.close()
-        return jsonify(msg)        
+        return jsonify(msg)
+
+
+
+@app.route('/customers-delete/<int:books_id>/', methods=['GET'])
+def delete_users(books_id):
+    msg = None
+    try:
+        with sqlite3.connect('database.db') as con:
+            cur = con.cursor()
+            cur.execute("DELETE FROM customers WHERE id=" + str(books_id))
+            con.commit()
+            msg = "A record was deleted successfully from the database."
+    except Exception as e:
+        con.rollback()
+        msg = "Error occurred when deleting a student in the database: " + str(e)
+    finally:
+        con.close()
+        return jsonify(msg)
 
    
 
